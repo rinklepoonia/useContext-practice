@@ -17,6 +17,7 @@ const Options = () => {
     });
     const [errors, setErrors] = useState({});
     const [isSubmitted, setIsSubmitted] = useState(false);
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setErrors({ ...errors, [e.target.name]: "" });
@@ -47,6 +48,7 @@ const Options = () => {
         setTimeout(() => setIsSubmitted(false), 2000);
         setFormData({ address: "", price: "", houseNumber: "", email: "" });
     };
+
     const handleClick = (step) => {
         setActiveStep(step);
         if (step > completedSteps[completedSteps.length - 1]) {
@@ -56,15 +58,25 @@ const Options = () => {
             setCompletedSteps(completedSteps.filter((s) => s <= step));
         }
     };
+
     const handleNext = () => {
         if (activeStep < 4) {
             const nextStep = activeStep + 1;
             setActiveStep(nextStep);
-            if (!completedSteps.includes(nextStep)) {
+
+            // Mark the current step as completed only if the input is filled
+            if (activeStep === 1 && formData.address.trim()) {
+                setCompletedSteps([...completedSteps, nextStep]);
+            } else if (activeStep === 2 && formData.price.trim()) {
+                setCompletedSteps([...completedSteps, nextStep]);
+            } else if (activeStep === 3 && formData.houseNumber.trim()) {
+                setCompletedSteps([...completedSteps, nextStep]);
+            } else if (activeStep === 4 && formData.email.trim()) {
                 setCompletedSteps([...completedSteps, nextStep]);
             }
         }
     };
+
     const handlePrev = () => {
         if (activeStep > 1) {
             const prevStep = activeStep - 1;
@@ -72,6 +84,7 @@ const Options = () => {
             setCompletedSteps(completedSteps.filter((s) => s <= prevStep));
         }
     };
+
     return (
         <div className="max-w-[1100px] mx-auto">
             <div className="flex gap-[130px] max-w-[800px] mx-auto relative">
@@ -80,14 +93,22 @@ const Options = () => {
                         <button
                             onClick={() => handleClick(obj)}
                             className={`cursor-pointer w-[50px] h-[50px] flex justify-center items-center font-semibold text-xl border border-solid rounded-full transition-all duration-300
-                            ${completedSteps.includes(obj) ? "bg-[#5E0612] text-white" : "bg-transparent text-gray-800"}`}
+                               ${
+                                // Red for clicked or completed steps with empty fields
+                                (formData[`${obj === 1 ? 'address' : obj === 2 ? 'price' : obj === 3 ? 'houseNumber' : 'email'}`] === ""
+                                    && (activeStep >= obj || completedSteps.includes(obj)))
+                                    ? "bg-[#5E0612] text-white" // Red for empty fields
+                                    : (activeStep >= obj || completedSteps.includes(obj)) // Blue for steps filled
+                                        ? "bg-blue-500 text-white" // Blue if filled
+                                        : "bg-transparent text-gray-800" // Transparent for inactive steps
+                                }`}
                         >
                             {obj}
                         </button>
                         {i !== NUMBER_DATA_LIST.length - 1 && (
                             <div
                                 className={`absolute top-1/2 left-[54px] w-[106px] h-1 transition-all duration-300
-                               ${activeStep > obj ? "bg-[#5E0612]" : "bg-gray-400"}`}
+                                   ${activeStep > obj ? "bg-[#5E0612]" : "bg-gray-400"}`}
                             ></div>
                         )}
                     </div>
@@ -103,7 +124,9 @@ const Options = () => {
                 <Button onClick={handlePrev}>Previous</Button>
                 <Button onClick={handleNext}>Next</Button>
             </div>
-            <button onClick={handleSubmit} type='submit' className="text-base font-normal bg-blue-400 text-white rounded-lg px-6 py-2 shadow-lg mt-10">Submit</button>
+            <button onClick={handleSubmit} type="submit" className="text-base font-normal bg-blue-400 text-white rounded-lg px-6 py-2 shadow-lg mt-10">
+                Submit
+            </button>
             {isSubmitted && (
                 <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg">
                     Form submitted successfully!
