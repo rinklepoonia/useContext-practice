@@ -9,6 +9,44 @@ import Button from "./Button";
 const Options = () => {
     const [activeStep, setActiveStep] = useState(1);
     const [completedSteps, setCompletedSteps] = useState([1]);
+    const [formData, setFormData] = useState({
+        address: "",
+        price: "",
+        houseNumber: "",
+        email: "",
+    });
+    const [errors, setErrors] = useState({});
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setErrors({ ...errors, [e.target.name]: "" });
+    };
+
+    const handleSubmit = () => {
+        let newErrors = {};
+
+        if (!formData.address.trim()) newErrors.address = "Address is required";
+        if (!formData.price.trim()) newErrors.price = "Starting price is required";
+        if (!formData.houseNumber.trim()) newErrors.houseNumber = "House number is required";
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+
+            // Find the first empty field and navigate to its step
+            if (!formData.address.trim()) setActiveStep(1);
+            else if (!formData.price.trim()) setActiveStep(2);
+            else if (!formData.houseNumber.trim()) setActiveStep(3);
+            else if (!formData.email.trim()) setActiveStep(4);
+
+            return;
+        }
+
+        // If all fields are filled, show success message and reset the form
+        setIsSubmitted(true);
+        setTimeout(() => setIsSubmitted(false), 2000);
+        setFormData({ address: "", price: "", houseNumber: "", email: "" });
+    };
     const handleClick = (step) => {
         setActiveStep(step);
         if (step > completedSteps[completedSteps.length - 1]) {
@@ -27,7 +65,6 @@ const Options = () => {
             }
         }
     };
-
     const handlePrev = () => {
         if (activeStep > 1) {
             const prevStep = activeStep - 1;
@@ -57,15 +94,21 @@ const Options = () => {
                 ))}
             </div>
             <div className="mt-5">
-                {activeStep === 1 && <First />}
-                {activeStep === 2 && <Second />}
-                {activeStep === 3 && <Third />}
-                {activeStep === 4 && <Fourth />}
+                {activeStep === 1 && <First formData={formData} errors={errors} onChange={handleChange} />}
+                {activeStep === 2 && <Second formData={formData} errors={errors} onChange={handleChange} />}
+                {activeStep === 3 && <Third formData={formData} errors={errors} onChange={handleChange} />}
+                {activeStep === 4 && <Fourth formData={formData} errors={errors} onChange={handleChange} />}
             </div>
             <div className="flex items-center gap-3 mt-5">
                 <Button onClick={handlePrev}>Previous</Button>
                 <Button onClick={handleNext}>Next</Button>
             </div>
+            <button onClick={handleSubmit} type='submit' className="text-base font-normal bg-blue-400 text-white rounded-lg px-6 py-2 shadow-lg mt-10">Submit</button>
+            {isSubmitted && (
+                <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg">
+                    Form submitted successfully!
+                </div>
+            )}
         </div>
     );
 };
