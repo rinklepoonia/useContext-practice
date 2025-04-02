@@ -33,8 +33,6 @@ const Options = () => {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-
-            // Find the first empty field and navigate to its step
             if (!formData.address.trim()) setActiveStep(1);
             else if (!formData.price.trim()) setActiveStep(2);
             else if (!formData.houseNumber.trim()) setActiveStep(3);
@@ -42,8 +40,6 @@ const Options = () => {
 
             return;
         }
-
-        // If all fields are filled, show success message and reset the form
         setIsSubmitted(true);
         setTimeout(() => setIsSubmitted(false), 2000);
         setFormData({ address: "", price: "", houseNumber: "", email: "" });
@@ -52,9 +48,8 @@ const Options = () => {
     const handleClick = (step) => {
         setActiveStep(step);
         if (step > completedSteps[completedSteps.length - 1]) {
-            setCompletedSteps([...completedSteps, step]); // Add the step to completed list if it's a forward step
+            setCompletedSteps([...completedSteps, step]); 
         } else {
-            // If going backward, only include steps up to the current active step
             setCompletedSteps(completedSteps.filter((s) => s <= step));
         }
     };
